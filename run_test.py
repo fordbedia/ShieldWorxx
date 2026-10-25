@@ -10,5 +10,5 @@ from scoring.engine import run_all_checks
 # ]:
 #     print(check_recruiter_email(Post(url="https://ford.com", text=text)))
 
-print(run_all_checks(Post(url="https://github.com/fordbedia")))
+print(run_all_checks(Post(url="https://freedomforever.com/about/contact-us/")))
 
