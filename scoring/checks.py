@@ -1,6 +1,7 @@
 from .domains import get_registered_domain, get_hostname
 from .rdap import get_domain_age_days
 import re
+from .ai.graph import graph
 
 def check_domain_age(posting) -> dict:
     """Turns the age into a FINDING the user can read."""
@@ -39,7 +40,10 @@ def check_recruiter_email(posting):
         return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": 0, "reason": f"Recruiter email uses a company domain ({', '.join(company)})"}
 
 def check_suspicious_requests(posting):
-    ...
+    g = graph.invoke({
+        "text": posting.text
+    })
+    return g
 
 def check_suspicious_tld(posting):
     ...
