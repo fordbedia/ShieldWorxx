@@ -37,3 +37,12 @@ def check_recruiter_email(posting):
         return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": -15, "reason": f"Recruiter uses a free email address ({', '.join(free)})"}
     else:
         return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": 0, "reason": f"Recruiter email uses a company domain ({', '.join(company)})"}
+
+def check_suspicious_requests(posting):
+    ...
+
+def check_suspicious_tld(posting):
+    ...
+
+def check_salary(posting):
+    ...
