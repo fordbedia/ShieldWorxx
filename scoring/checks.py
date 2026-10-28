@@ -63,7 +63,7 @@ def check_suspicious_requests(posting):
     4. Compare against a list of suspicious TLDs. Starting candidates: .xyz, .top, .click, .icu, .buzz, .cfd, .sbs, .loan, .work, .online, .site. 
     Spamhaus publishes a “most abused TLDs” list you can use as a source.
 """
-SUSPICIOUS_TLDS = ['.xyz', '.com', '.top', '.click', '.icu', '.buzz', '.cfd', '.sbs', '.loan', '.work', '.online', '.site']
+SUSPICIOUS_TLDS = ['.xyz', '.top', '.click', '.icu', '.buzz', '.cfd', '.sbs', '.loan', '.work', '.online', '.site']
 PENALTIES = {
     "suspicious_tld": -15,
     "salary_range_too_wide": -10,
@@ -74,8 +74,12 @@ def get_domain_tld(domain) -> str:
 def check_suspicious_tld(posting):
     if posting.post_details is None:
         return {
-            "check": "suspicious_tld",
+            "name": "suspicious_tld",
             "penalty": 0,
+            "reason": "No company email to check",
+            "bad_tld_count": 0,
+            "penalty_sum": 0,
+            "evidence": [],
         }
     emails = posting.post_details.emails
     domains = list(dict.fromkeys([get_domain_tld(domain.split('@')[1]) for domain in emails]))
@@ -84,24 +88,24 @@ def check_suspicious_tld(posting):
     for domain in domains:
         if domain in SUSPICIOUS_TLDS:
             findings.append({
-                "check": "suspicious_tld",
+                "name": "suspicious_tld",
                 "penalty": PENALTIES['suspicious_tld'],
                 "reason": f"Contact email uses a high-risk domain ({domain})",
                 "domains": domain,
-                "evidence": [email for email in emails if domain in email],
+                "evidence": [email for email in emails if get_domain_tld(email.split('@')[1]) == domain],
             })
         else:
             findings.append({
-                "check": "suspicious_tld",
+                "name": "suspicious_tld",
                 "penalty": 0,
                 "reason": f"Contact email uses a safe domain ({domain})",
                 "domains": domain,
-                "evidence": [email for email in emails if domain in email],
+                "evidence": [email for email in emails if get_domain_tld(email.split('@')[1]) == domain],
             })
     # Step 2: Sum up the penalties for bad TLDs and combine their emails and TLDs
     finding_calculations = {}
     for finding in findings:
-        if finding['penalty'] <= -15:
+        if finding['penalty'] <= PENALTIES['suspicious_tld']:
             if 'total' in finding_calculations:
                 finding_calculations['total'] += finding['penalty']
             else:
@@ -117,18 +121,22 @@ def check_suspicious_tld(posting):
                 finding_calculations['evidence'] = finding['evidence']
 
     # Step 3: Then return one finding with one penalty that lists them all.
-    if finding_calculations['total'] > 0:
+    if 'total' in finding_calculations and finding_calculations['total'] <= PENALTIES['suspicious_tld']:
         return {
-            "check": "suspicious_tld",
-            "penalty": 0,
-            "reason": f"Contact email uses a safe domain ({domain})",
-            "evidence": [email for email in emails if domain in email],
+            "name": "suspicious_tld",
+            "bad_tld_count": len(finding_calculations['domains']),
+            "penalty_sum": finding_calculations['total'],
+            "penalty": PENALTIES['suspicious_tld'],
+            "reason": f"Contact email uses high-risk domain ({', '.join(finding_calculations['domains'])})",
+            "evidence": finding_calculations['evidence'],
         }
     return {
-        "check": "suspicious_tld",
-        "penalty": finding_calculations['total'],
-        "reason": f"Contact email uses high-risk domain ({', '.join(finding_calculations['domains'])})",
-        "email_evidence": ", ".join(finding_calculations['evidence']),
+        "name": "suspicious_tld",
+        "penalty": 0,
+        "reason": "No suspicious TLDs found",
+        "bad_tld_count": 0,
+        "penalty_sum": 0,
+        "evidence": [],
     }
 
 """
