@@ -1,8 +1,10 @@
-from .domains import get_registered_domain, get_hostname
+from .domains import get_registered_domain, get_hostname, get_domain_tld
 from .rdap import get_domain_age_days
 import re
 from .ai.graph import graph
 import tldextract
+from .rules import FREE_EMAIL_PROVIDERS, SUSPICIOUS_TLDS, PENALTIES
+from .findings import make_finding
 
 def check_domain_age(posting) -> dict:
     """Turns the age into a FINDING the user can read."""
@@ -22,10 +24,6 @@ def check_domain_age(posting) -> dict:
         return {"name": "domain_age", "domain": domain, "penalty": -20, "reason": f"Domain registered {days} days ago"}
     else:
         return {"name": "domain_age", "domain": domain, "penalty": 0, "reason": f"Domain is {days // 365} years old"}
-
-
-FREE_EMAIL_PROVIDERS = {"gmail.com", "yahoo.com", "outlook.com", "hotmail.com",
-                        "aol.com", "icloud.com", "proton.me", "protonmail.com"}
 
 def check_recruiter_email(posting):
     emails = [e.rstrip(".") for e in re.findall(r"[\w.+-]+@[\w-]+\.[\w.-]+", posting.text)]
@@ -63,24 +61,17 @@ def check_suspicious_requests(posting):
     4. Compare against a list of suspicious TLDs. Starting candidates: .xyz, .top, .click, .icu, .buzz, .cfd, .sbs, .loan, .work, .online, .site. 
     Spamhaus publishes a “most abused TLDs” list you can use as a source.
 """
-SUSPICIOUS_TLDS = ['.xyz', '.top', '.click', '.icu', '.buzz', '.cfd', '.sbs', '.loan', '.work', '.online', '.site']
-PENALTIES = {
-    "suspicious_tld": -15,
-    "salary_range_too_wide": -10,
-}
-def get_domain_tld(domain) -> str:
-    return f"."+tldextract.extract(domain).suffix.lower().strip()
 
 def check_suspicious_tld(posting):
     if posting.post_details is None:
-        return {
-            "name": "suspicious_tld",
-            "penalty": 0,
-            "reason": "No company email to check",
-            "bad_tld_count": 0,
-            "penalty_sum": 0,
-            "evidence": [],
-        }
+        return make_finding(
+            name="suspicious_tld",
+            penalty=0,
+            reason="No recruiter email in posting",
+            bad_tld_count=0,
+            penalty_sum=0,
+            evidence=[]
+        )
     emails = posting.post_details.emails
     domains = list(dict.fromkeys([get_domain_tld(domain.split('@')[1]) for domain in emails]))
     findings = []
@@ -122,22 +113,22 @@ def check_suspicious_tld(posting):
 
     # Step 3: Then return one finding with one penalty that lists them all.
     if 'total' in finding_calculations and finding_calculations['total'] <= PENALTIES['suspicious_tld']:
-        return {
-            "name": "suspicious_tld",
-            "bad_tld_count": len(finding_calculations['domains']),
-            "penalty_sum": finding_calculations['total'],
-            "penalty": PENALTIES['suspicious_tld'],
-            "reason": f"Contact email uses high-risk domain ({', '.join(finding_calculations['domains'])})",
-            "evidence": finding_calculations['evidence'],
-        }
-    return {
-        "name": "suspicious_tld",
-        "penalty": 0,
-        "reason": "No suspicious TLDs found",
-        "bad_tld_count": 0,
-        "penalty_sum": 0,
-        "evidence": [],
-    }
+        return make_finding(
+            name="suspicious_tld",
+            bad_tld_count=len(finding_calculations['domains']),
+            penalty_sum=finding_calculations['total'],
+            penalty=PENALTIES['suspicious_tld'],
+            reason=f"Contact email uses high-risk domain ({', '.join(finding_calculations['domains'])})",
+            evidence=finding_calculations['evidence'],
+        )
+    return make_finding(
+        name="suspicious_tld",
+        penalty=0,
+        reason="No suspicious TLDs found",
+        bad_tld_count=0,
+        penalty_sum=0,
+        evidence=[]
+    )
 
 """
     Steps to think through:

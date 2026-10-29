@@ -13,3 +13,5 @@ def get_registered_domain(hostname):
     hostname = tldextract.extract(hostname).registered_domain
     return hostname
 
+def get_domain_tld(domain) -> str:
+    return f"."+tldextract.extract(domain).suffix.lower().strip()
