@@ -7,3 +7,5 @@ PENALTIES = {
     "suspicious_tld": -15,
     "salary_range_too_wide": -10,
 }
+
+SALARY_PERIOD_MULTIPLIERS = {"hour": 2080, "week": 52, "month": 12, "year": 1}
