@@ -39,10 +39,10 @@ be bound by this website’s Terms of Use and Freedom Forever Website Privacy Po
  based on many different factors, including your electricity needs, home structure, utility company rules, state and federal incentive programs,
   geography and topography. System production may be decreased by several factors that would affect the production guarantee. Refer to 
   your specific installation agreement for exclusions and/or other factors. The statements made by Freedom Forever are based on the data 
-  available as of the last update to this website. There is no express or implied dollar savings guarantee. Statements regarding tax rebates 
+  available as of the last update to this website. Salary range: $80,000 - $110000 USD There is no express or implied dollar savings guarantee. Statements regarding tax rebates 
   and/or incentives are not guarantees you should seek advice from a tax professional regarding any rebate terms and/or qualifications.
    Warranty and repair of the system are subject strictly to the specific terms and conditions stated in your installation agreement. 
-   For more information about the Illinois Shines Adjustable Block Program by the Illinois Power Agency, please read the Illinois Shines 
+   We also have 140,000 USD for senior. For more information about the Illinois Shines Adjustable Block Program by the Illinois Power Agency, please read the Illinois Shines 
    Brochure . Legal | Website Privacy Policy | Terms of Use | Licenses 43445 Business Park Drive Suite 104, Temecula 92590 © 2021 Freedom Forever LLC 
    customersupport@freedomforever.com'
 """

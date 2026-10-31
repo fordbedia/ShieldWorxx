@@ -1,7 +1,7 @@
 from .domains import get_registered_domain, get_hostname, get_domain_tld
 from .rdap import get_domain_age_days
 import re
-from .ai.graph import graph
+from .ai.graph import fraud_graph, salary_graph
 import tldextract
 from .rules import FREE_EMAIL_PROVIDERS, SUSPICIOUS_TLDS, PENALTIES
 from .findings import make_finding
@@ -39,10 +39,15 @@ def check_recruiter_email(posting):
         return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": 0, "reason": f"Recruiter email uses a company domain ({', '.join(company)})"}
 
 def check_suspicious_requests(posting):
-    g = graph.invoke({
+    state = fraud_graph.invoke({
         "text": posting.text
     })
-    return g
+
+    state.pop("text", None)
+    return make_finding(
+        name="suspicious_requests",
+        **state
+    )
 
 """
     Where to look in the posting: anything that holds a domain:
@@ -143,4 +148,19 @@ def check_suspicious_tld(posting):
     Those reasons are what makes the UI useful.
 """
 def check_salary(posting):
-    ...
+    # pattern = r"\$[0-9.]+(?:-[0-9.]+)?\/hr|\$[0-9,]+\s?(?:weekly|monthly)|\$[0-9,]+[kK]?|[0-9,]+[kK]?\s?(?:USD|usd)|[0-9,]{4,}"
+    # salaries = re.findall(pattern, posting.text)
+    # print('salaries', salaries)
+    state = salary_graph.invoke({
+        "text": posting.text,
+    })
+
+    analysis = state['salary_analysis']
+    final = analysis.penalty
+
+    return make_finding(
+        name="salary",
+        penalty=final,
+        reason=analysis.reason,
+        salary_analysis=analysis.model_dump(),
+    )

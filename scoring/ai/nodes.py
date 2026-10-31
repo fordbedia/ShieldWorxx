@@ -1,8 +1,8 @@
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 from langchain_core.messages import SystemMessage, HumanMessage
-from .prompts import SYSTEM_PROMPT, USER_TEMPLATE
-from .schema import VerdictState, SecurityAgentState
+from .prompts import SYSTEM_PROMPT, USER_TEMPLATE, SALARY_SYSTEM_PROMPT
+from .schema import VerdictState, SecurityAgentState, SalaryAgentState, SalaryAnalysis
 
 def get_llm():
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
@@ -22,3 +22,12 @@ def suspicious_nodes(state: SecurityAgentState):
         HumanMessage(content=content),
     ])
     return result
+
+def suspicious_salary_nodes(state: SalaryAgentState):
+    validate_salary_llm = get_llm().with_structured_output(SalaryAnalysis)
+    text_prompt = state['text']
+    result: SalaryAnalysis = validate_salary_llm.invoke([
+        SystemMessage(content=SALARY_SYSTEM_PROMPT),
+        HumanMessage(content=text_prompt),
+    ])
+    return {"salary_analysis": result}

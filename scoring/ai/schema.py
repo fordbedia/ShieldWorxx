@@ -23,9 +23,16 @@ class PaySignal(BaseModel):
     detected: bool
     quotes: list[str]
     reason: str
+    penalty: Literal[0, -5, -15]
 
 class SalaryAnalysis(BaseModel):
     extraction: SalaryExtraction
     vague_pay: PaySignal
     commission_only: PaySignal
     too_good_to_be_true: PaySignal
+    penalty: Literal[0, -5, -15]
+    reason: str
+
+class SalaryAgentState(TypedDict):
+    text: str
+    salary_analysis: SalaryAnalysis | None

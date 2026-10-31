@@ -1,13 +1,14 @@
 from .checks import check_domain_age, check_recruiter_email
 from .scorer import score
 from .fetchers import fetch_text
-from .checks import check_suspicious_requests, check_suspicious_tld
+from .checks import check_suspicious_requests, check_salary, check_suspicious_tld
 from .posting import PostDetails
 
 CHECKS_PHASE_1 = [check_domain_age, check_recruiter_email]
 CHECKS_PHASE_2 = [
-    # check_suspicious_requests,
-    check_suspicious_tld
+    check_suspicious_requests,
+    # check_salary,
+    check_suspicious_tld,
 ]
 
 def run_all_checks(posting):
