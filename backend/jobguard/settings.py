@@ -29,7 +29,9 @@ SECRET_KEY = "django-insecure-+*vexys2d395j8!2*2e+=gd4xg+h_3r$s7lzs-g73i*#7637h1
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'int.fordbedia.com'
+    'int.fordbedia.com',
+    'shieldworxx.int.fordbedia.com',
+    'shieldworxx.fordbedia.com'
 ]
 
 # Application definition

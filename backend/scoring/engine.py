@@ -6,8 +6,8 @@ from .posting import PostDetails
 
 CHECKS_PHASE_1 = [check_domain_age, check_recruiter_email]
 CHECKS_PHASE_2 = [
-    check_suspicious_requests, # AI
-    check_salary, # AI
+    # check_suspicious_requests, # AI
+    # check_salary, # AI
     check_suspicious_tld,
 ]
 
