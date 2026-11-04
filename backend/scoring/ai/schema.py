@@ -26,6 +26,9 @@ class PaySignal(BaseModel):
     penalty: Literal[0, -5, -15]
 
 class SalaryAnalysis(BaseModel):
+    # Declared first so the model identifies the role before judging pay.
+    title: str | None = Field(description="Job title of the advertised position, or null if not stated")
+    company: str | None = Field(description="Hiring company name (not the job board), or null if not named")
     extraction: SalaryExtraction
     vague_pay: PaySignal
     commission_only: PaySignal
