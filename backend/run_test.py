@@ -46,4 +46,4 @@ be bound by this website’s Terms of Use and Freedom Forever Website Privacy Po
    Brochure . Legal | Website Privacy Policy | Terms of Use | Licenses 43445 Business Park Drive Suite 104, Temecula 92590 © 2021 Freedom Forever LLC 
    customersupport@freedomforever.com'
 """
-print(run_all_checks(Post(url="https://lensa.com/web-developer-fully-remote-jobs-hiring-remote/tp-jobstop/03e007cf968554240d10290e9e2bb33a1ebabc8f1b76233fc40b02482accff9c?tr=3b8b2e72147f4c6ba6d6a1ec793bc1d0intc1&utm_source=lensa24&utm_medium=default_jobs&utm_campaign=2")))
+print(run_all_checks(Post(url="https://careers.aristocrat.com/en/jobs/r0022176/full-stack-developer", text=text)))
