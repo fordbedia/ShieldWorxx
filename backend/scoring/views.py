@@ -17,5 +17,5 @@ class ValidateAll(APIView):
             validate_url(job_url)
         except ValidationError:
             return Response({"error": "Invalid URL"}, status=400)
-        basic, score, advanced = run_all_checks(Post(url=job_url))
+        basic, advanced, score  = run_all_checks(Post(url=job_url))
         return Response({"score": score, "findings": basic + advanced})

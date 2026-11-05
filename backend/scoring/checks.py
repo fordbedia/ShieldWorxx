@@ -187,7 +187,6 @@ def check_ssl_validity(posting):
     if posting and posting.post_details and hasattr(posting.post_details, 'emails'):
         domains = [get_domain_or_subdomain(d.split('@')[1]) for d in posting.post_details.emails]
 
-    hostname: str = get_registered_domain(get_hostname(posting.url))
     port: int = 443
     unique_domains = list(dict.fromkeys(domains))
     initial_results = list(check_ssl_status(domain, port, i) for i, domain in enumerate(unique_domains))
@@ -204,6 +203,8 @@ def check_ssl_validity(posting):
                 final_result['risk_domains'] = []
             if 'penalty' not in final_result:
                 final_result['penalty'] = 0
+            if 'evidence' not in final_result:
+                final_result['evidence'] = []
 
             if result['penalty'] <= -20:
                 final_result['penalty'] = result['penalty']
@@ -211,6 +212,7 @@ def check_ssl_validity(posting):
                 final_result['reason'] = result['reason']
                 final_result['domain_results'].append(result)
                 final_result['risk_domains'].append(result['hostname'])
+                final_result['evidence'].append(f"{result['hostname']}: {result['reason']}")
             elif result['penalty'] <= -15:
                 if final_result['penalty'] != -20:
                     final_result['penalty'] = result['penalty']
@@ -218,13 +220,23 @@ def check_ssl_validity(posting):
                 final_result['domains'].append(result['hostname'])
                 final_result['risk_domains'].append(result['hostname'])
                 final_result['domain_results'].append(result)
+                final_result['evidence'].append(f"{result['hostname']}: {result['reason']}")
             else:
                 if final_result['penalty'] != -20 and final_result['penalty'] != -15:
                     final_result['reason'] = result['reason']
                 final_result['domains'].append(result['hostname'])
                 final_result['domain_results'].append(result)
 
-    # Please ignore this line, this is only to bypass the error
+    if not final_result:
+        return make_finding(
+            name="ssl_validity",
+            reason="No employer domain found, so SSL wasn’t checked",
+            penalty=0,
+            domains=[],
+            risk_domains=[],
+            domain_results=[],
+            evidence=[]
+        )
     return make_finding(
         name="ssl_validity",
         reason=final_result['reason'],
@@ -232,4 +244,5 @@ def check_ssl_validity(posting):
         domains=final_result['domains'],
         risk_domains=final_result['risk_domains'],
         domain_results=final_result['domain_results'],
+        evidence=final_result['evidence'],
     )

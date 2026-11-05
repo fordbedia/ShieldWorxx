@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from .findings import make_finding
 from .rules import FREE_EMAIL_PROVIDERS, SUSPICIOUS_TLDS, PENALTIES
 
+
 def check_ssl_status(hostname: str, port: int, index: int):
     context = ssl.create_default_context()
     try:
@@ -39,6 +40,31 @@ def check_ssl_status(hostname: str, port: int, index: int):
                 )
 
     except ssl.SSLCertVerificationError as e:
+        # Expired
+        if e.verify_code == 10:
+            return make_finding(
+                name=f"ssl_validity_check_{index}",
+                hostname=hostname,
+                reason=f"Company website's SSL certificate has expired.",
+                penalty=PENALTIES['expired_ssl'],
+            )
+        # Hostname mismatch
+        if e.verify_code == 62:
+            return make_finding(
+                name=f"ssl_validity_check_{index}",
+                hostname=hostname,
+                reason=f"SSL certificate doesn't match the company domain.",
+                penalty=PENALTIES['hostname_mismatch'],
+            )
+        # Self-signed
+        if e.verify_code == 18:
+            return make_finding(
+                name=f"ssl_validity_check_{index}",
+                hostname=hostname,
+                reason=f"Company website uses a self-signed SSL certificate.",
+                penalty=PENALTIES['self_signed_or_untrusted_ca'],
+            )
+        # Untrusted issuer: 20, 21, 2
         return make_finding(
             name=f"ssl_validity_check_{index}",
             hostname=hostname,
