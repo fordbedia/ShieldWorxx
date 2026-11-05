@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from .findings import make_finding
 from .rules import FREE_EMAIL_PROVIDERS, SUSPICIOUS_TLDS, PENALTIES
 
-def check_ssl_status(hostname, port):
+def check_ssl_status(hostname: str, port: int, index: int):
     context = ssl.create_default_context()
     try:
         # Establish a network connection and wrap it with SSL
@@ -23,14 +23,16 @@ def check_ssl_status(hostname, port):
 
                 if days_left <= 0:
                     return make_finding(
-                        name="ssl_validity",
-                        reason=f"Company website's SSL certificate has expired ({hostname}).",
+                        name=f"ssl_validity_check_{index}",
+                        hostname=hostname,
+                        reason=f"Company website's SSL certificate has expired.",
                         penalty=PENALTIES['expired_ssl'],
                     )
 
                 return make_finding(
-                    name="ssl_validity",
-                    reason=f"Company website has a valid SSL certificate ({hostname}).",
+                    name=f"ssl_validity_check_{index}",
+                    hostname=hostname,
+                    reason=f"Company website has a valid SSL certificate.",
                     evidence=[f"Expires on: {expiry_str} ({days_left} days left)",
                               f"SSL Issued to: {dict(cert['subject'][-1])['commonName']}"],
                     penalty=0
@@ -38,19 +40,22 @@ def check_ssl_status(hostname, port):
 
     except ssl.SSLCertVerificationError as e:
         return make_finding(
-            name="ssl_validity",
-            reason=f"SSL certificate isn't from a trusted issuer ({hostname}).",
+            name=f"ssl_validity_check_{index}",
+            hostname=hostname,
+            reason=f"SSL certificate isn't from a trusted issuer.",
             penalty=PENALTIES['self_signed_or_untrusted_ca'],
         )
     except socket.timeout:
         return make_finding(
-            name="ssl_validity",
+            name=f"ssl_validity_check_{index}",
+            hostname=hostname,
             reason=f"Couldn't check SSL certificate ({hostname} didn't respond).",
             penalty=0
         )
     except Exception as e:
         return make_finding(
-            name="ssl_validity",
-            reason=f"Couldn't check SSL certificate ({hostname})",
+            name=f"ssl_validity_check_{index}",
+            hostname=hostname,
+            reason=f"Couldn't check SSL certificate.",
             penalty=0
         )

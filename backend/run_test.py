@@ -31,7 +31,7 @@ By checking the box and clicking submit, I authorize Freedom Forever LLC, it’s
 and/or text messages (SMS), using auto dialing technology or otherwise, for advertising/marketing purposes, whether or not my phone 
 number is on a national and/or state “Do Not Call” list. By using and interacting with this website, I agree to electronically contract and 
 be bound by this website’s Terms of Use and Freedom Forever Website Privacy Policy. No purchase is required. Message and data rates may apply.
- Text STOP to opt-out. Facebook Instagram Linkedin YouTube Spotify Helpful Links Why go solar About Us Services Volt Mobile 
+ Text STOP to opt-out. contact these persons: john@expired.badssl.com, tina@self-signed.badssl.com, manuel@untrusted-root.badssl.com and fermin@wrong.host.badssl.com Facebook Instagram Linkedin YouTube Spotify Helpful Links Why go solar About Us Services Volt Mobile 
  App Learning center Verification of Employment Podcast Dealer program Careers States we service Customer portal Contact us 
  Why go solar About Us Services Volt Mobile App Learning center Verification of Employment Podcast Dealer program Careers States we service 
  Customer portal Contact us Why go solar About Us Services Volt Mobile App Learning center Verification of Employment Podcast Dealer program 

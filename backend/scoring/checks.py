@@ -1,4 +1,4 @@
-from .domains import get_registered_domain, get_hostname, get_domain_tld
+from .domains import get_registered_domain, get_hostname, get_domain_tld, get_domain_or_subdomain
 from .rdap import get_domain_age_days
 import re
 from .ai.graph import fraud_graph, salary_graph
@@ -8,6 +8,7 @@ from .findings import make_finding
 import ssl, socket
 from datetime import datetime, timezone
 from .helpers import check_ssl_status
+
 
 def check_domain_age(posting) -> dict:
     """Turns the age into a FINDING the user can read."""
@@ -28,18 +29,24 @@ def check_domain_age(posting) -> dict:
     else:
         return {"name": "domain_age", "domain": domain, "penalty": 0, "reason": f"Domain is {days // 365} years old"}
 
+
 def check_recruiter_email(posting):
     emails = [e.rstrip(".") for e in re.findall(r"[\w.+-]+@[\w-]+\.[\w.-]+", posting.text)]
     free = [e for e in emails if e.split("@")[1].lower() in FREE_EMAIL_PROVIDERS]
     company = [e for e in emails if e not in free]
     if not emails:
-        return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": 0, "reason": "No recruiter email in posting"}
+        return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": 0,
+                "reason": "No recruiter email in posting"}
     elif free and company:
-        return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": -15, "reason": f"Posting lists a company email ({', '.join(company)}) but also a free address ({', '.join(free)})"}
+        return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": -15,
+                "reason": f"Posting lists a company email ({', '.join(company)}) but also a free address ({', '.join(free)})"}
     elif free:
-        return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": -15, "reason": f"Recruiter uses a free email address ({', '.join(free)})"}
+        return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": -15,
+                "reason": f"Recruiter uses a free email address ({', '.join(free)})"}
     else:
-        return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": 0, "reason": f"Recruiter email uses a company domain ({', '.join(company)})"}
+        return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": 0,
+                "reason": f"Recruiter email uses a company domain ({', '.join(company)})"}
+
 
 def check_suspicious_requests(posting):
     state = fraud_graph.invoke({
@@ -51,6 +58,7 @@ def check_suspicious_requests(posting):
         name="suspicious_requests",
         **state
     )
+
 
 """
     Where to look in the posting: anything that holds a domain:
@@ -69,6 +77,7 @@ def check_suspicious_requests(posting):
     4. Compare against a list of suspicious TLDs. Starting candidates: .xyz, .top, .click, .icu, .buzz, .cfd, .sbs, .loan, .work, .online, .site. 
     Spamhaus publishes a “most abused TLDs” list you can use as a source.
 """
+
 
 def check_suspicious_tld(posting):
     if posting.post_details is None:
@@ -138,6 +147,7 @@ def check_suspicious_tld(posting):
         evidence=[]
     )
 
+
 """
     Steps to think through:
     1. Parse salary text into numbers. You’ll see $80k , 80,000, $40-50/hr, $4,000 weekly. 
@@ -150,6 +160,8 @@ def check_suspicious_tld(posting):
     4. Return the flags with weights and a short human-readable reason, such as “Range spans 5x ($50k–$250k)”. 
     Those reasons are what makes the UI useful.
 """
+
+
 def check_salary(posting):
     # pattern = r"\$[0-9.]+(?:-[0-9.]+)?\/hr|\$[0-9,]+\s?(?:weekly|monthly)|\$[0-9,]+[kK]?|[0-9,]+[kK]?\s?(?:USD|usd)|[0-9,]{4,}"
     # salaries = re.findall(pattern, posting.text)
@@ -168,63 +180,56 @@ def check_salary(posting):
         salary_analysis=analysis.model_dump(),
     )
 
+
 def check_ssl_validity(posting):
-    context = ssl.create_default_context()
-    print('posting.post_details', posting.post_details.emails)
     """Check every distinct domain from the email and returns one finding that covers them all. """
     domains = []
     if posting and posting.post_details and hasattr(posting.post_details, 'emails'):
-        domains = [get_registered_domain(d.split('@')[1]) for d in posting.post_details.emails]
-    print('domains', domains)
+        domains = [get_domain_or_subdomain(d.split('@')[1]) for d in posting.post_details.emails]
 
     hostname: str = get_registered_domain(get_hostname(posting.url))
     port: int = 443
+    unique_domains = list(dict.fromkeys(domains))
+    initial_results = list(check_ssl_status(domain, port, i) for i, domain in enumerate(unique_domains))
 
-    try:
-        # Establish a network connection and wrap it with SSL
-        with socket.create_connection((hostname, port), timeout=5) as sock:
-            with context.wrap_socket(sock, server_hostname=hostname) as ssock:
-                # If wrap_socket succeeds, the SSL certificate is VALID
-                # Now extract metadata like the expiration date
-                cert = ssock.getpeercert()
+    final_result = {}
+    if initial_results:
+        for result in initial_results:
+            # Create dictionary keys if it is not yet set
+            if 'domain_results' not in final_result:
+                final_result['domain_results'] = []
+            if 'domains' not in final_result:
+                final_result['domains'] = []
+            if 'risk_domains' not in final_result:
+                final_result['risk_domains'] = []
+            if 'penalty' not in final_result:
+                final_result['penalty'] = 0
 
-                # Parse the expiration date string (e.g., 'Jan 24 12:00:00 2027 GMT')
-                expiry_str = cert["notAfter"]
-                expiry_date = datetime.strptime(
-                    expiry_str, "%b %d %H:%M:%S %Y %Z"
-                ).replace(tzinfo=timezone.utc)
-                current_time = datetime.now(timezone.utc)
-                days_left = (expiry_date - current_time).days
+            if result['penalty'] <= -20:
+                final_result['penalty'] = result['penalty']
+                final_result['domains'].append(result['hostname'])
+                final_result['reason'] = result['reason']
+                final_result['domain_results'].append(result)
+                final_result['risk_domains'].append(result['hostname'])
+            elif result['penalty'] <= -15:
+                if final_result['penalty'] != -20:
+                    final_result['penalty'] = result['penalty']
+                    final_result['reason'] = result['reason']
+                final_result['domains'].append(result['hostname'])
+                final_result['risk_domains'].append(result['hostname'])
+                final_result['domain_results'].append(result)
+            else:
+                if final_result['penalty'] != -20 and final_result['penalty'] != -15:
+                    final_result['reason'] = result['reason']
+                final_result['domains'].append(result['hostname'])
+                final_result['domain_results'].append(result)
 
-                if days_left <= 0:
-                    return make_finding(
-                        name="ssl_validity",
-                        reason=f"Company website's SSL certificate has expired ({hostname}).",
-                        penalty=PENALTIES['expired_ssl'],
-                    )
-
-                return make_finding(
-                    name="ssl_validity",
-                    reason=f"Company website has a valid SSL certificate ({hostname}).",
-                    evidence=[f"Expires on: {expiry_str} ({days_left} days left)", f"SSL Issued to: {dict(cert['subject'][-1])['commonName']}"],
-                    penalty=0
-                )
-
-    except ssl.SSLCertVerificationError as e:
-        return make_finding(
-            name="ssl_validity",
-            reason=f"SSL certificate isn't from a trusted issuer ({hostname}).",
-            penalty=PENALTIES['self_signed_or_untrusted_ca'],
-        )
-    except socket.timeout:
-        return make_finding(
-            name="ssl_validity",
-            reason=f"Couldn't check SSL certificate ({hostname} didn't respond).",
-            penalty=0
-        )
-    except Exception as e:
-        return make_finding(
-            name="ssl_validity",
-            reason=f"Couldn't check SSL certificate ({hostname})",
-            penalty=0
-        )
+    # Please ignore this line, this is only to bypass the error
+    return make_finding(
+        name="ssl_validity",
+        reason=final_result['reason'],
+        penalty=final_result['penalty'],
+        domains=final_result['domains'],
+        risk_domains=final_result['risk_domains'],
+        domain_results=final_result['domain_results'],
+    )
