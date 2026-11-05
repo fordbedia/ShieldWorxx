@@ -27,12 +27,16 @@ SYSTEM_PROMPT = """
     - reason: one or two plain-English sentences for a job seeker, quoting the exact
       phrase(s) from the posting that triggered the flag.
       If safe, say briefly why (e.g. "No risky requests found; payment is mentioned only in an anti-scam warning.").
-    
+    - evidence: a list of strings. Each string is an EXACT text span copied from the
+      posting, character for character, that triggered a red flag. Include one entry
+      per triggering phrase. Do not paraphrase, summarize, or invent text.
+      Use an empty list [] when the verdict is "safe".
+
     Example of a suspicious result:
-    {"verdict": "suspicious", "penalty": -40, "reason": "The posting asks you to \"purchase a starter kit for $89\" and to interview \"via Telegram\"."}
-    
+    {"verdict": "suspicious", "penalty": -40, "reason": "The posting asks you to \"purchase a starter kit for $89\" and to interview \"via Telegram\".", "evidence": ["purchase a starter kit for $89", "via Telegram"]}
+
     Example of a safe result:
-    {"verdict": "safe", "penalty": 0, "reason": "No risky requests found."}
+    {"verdict": "safe", "penalty": 0, "reason": "No risky requests found.", "evidence": []}
 """
 
 USER_TEMPLATE = """

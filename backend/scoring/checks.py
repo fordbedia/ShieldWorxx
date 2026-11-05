@@ -21,13 +21,13 @@ def check_domain_age(posting) -> dict:
     days = get_domain_age_days(domain)
 
     if days is None:
-        return {"name": "domain_age", "domain": domain, "penalty": 0, "reason": "Couldn't check domain age"}
+        return {"name": "domain_age", "domain": domain, "penalty": 0, "severity": "low", "reason": "Couldn't check domain age"}
     elif days < 30:
-        return {"name": "domain_age", "domain": domain, "penalty": -35, "reason": f"Domain registered {days} days ago"}
+        return {"name": "domain_age", "domain": domain, "penalty": -35, "severity": "high", "reason": f"Domain registered {days} days ago"}
     elif days < 180:
-        return {"name": "domain_age", "domain": domain, "penalty": -20, "reason": f"Domain registered {days} days ago"}
+        return {"name": "domain_age", "domain": domain, "penalty": -20, "severity": "medium", "reason": f"Domain registered {days} days ago"}
     else:
-        return {"name": "domain_age", "domain": domain, "penalty": 0, "reason": f"Domain is {days // 365} years old"}
+        return {"name": "domain_age", "domain": domain, "penalty": 0, "severity": "low", "reason": f"Domain is {days // 365} years old"}
 
 
 def check_recruiter_email(posting):
@@ -36,16 +36,16 @@ def check_recruiter_email(posting):
     company = [e for e in emails if e not in free]
     if not emails:
         return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": 0,
-                "reason": "No recruiter email in posting"}
+                "reason": "No recruiter email in posting", "severity": "low"}
     elif free and company:
         return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": -15,
-                "reason": f"Posting lists a company email ({', '.join(company)}) but also a free address ({', '.join(free)})"}
+                "reason": f"Posting lists a company email ({', '.join(company)}) but also a free address ({', '.join(free)})", "severity": "medium"}
     elif free:
-        return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": -15,
-                "reason": f"Recruiter uses a free email address ({', '.join(free)})"}
+        return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": -20,
+                "reason": f"Recruiter uses a free email address ({', '.join(free)})", "severity": "high"}
     else:
         return {"name": "recruiter_email", "details": {"free": free, "company": company}, "penalty": 0,
-                "reason": f"Recruiter email uses a company domain ({', '.join(company)})"}
+                "reason": f"Recruiter email uses a company domain ({', '.join(company)})", "severity": "low"}
 
 
 def check_suspicious_requests(posting):
@@ -56,7 +56,8 @@ def check_suspicious_requests(posting):
     state.pop("text", None)
     return make_finding(
         name="suspicious_requests",
-        **state
+        severity="high" if state['verdict'] == 'suspicious' else "low",
+        **state,
     )
 
 
@@ -87,7 +88,8 @@ def check_suspicious_tld(posting):
             reason="No recruiter email in posting",
             bad_tld_count=0,
             penalty_sum=0,
-            evidence=[]
+            evidence=[],
+            severity="low"
         )
     emails = posting.post_details.emails
     domains = list(dict.fromkeys([get_domain_tld(domain.split('@')[1]) for domain in emails]))
@@ -128,6 +130,9 @@ def check_suspicious_tld(posting):
             else:
                 finding_calculations['evidence'] = finding['evidence']
 
+    high = len([f['penalty'] for f in findings if f['penalty'] == -15])
+    low = len([f['penalty'] for f in findings if f['penalty'] == 0])
+
     # Step 3: Then return one finding with one penalty that lists them all.
     if 'total' in finding_calculations and finding_calculations['total'] <= PENALTIES['suspicious_tld']:
         return make_finding(
@@ -137,6 +142,7 @@ def check_suspicious_tld(posting):
             penalty=PENALTIES['suspicious_tld'],
             reason=f"Contact email uses high-risk domain ({', '.join(finding_calculations['domains'])})",
             evidence=finding_calculations['evidence'],
+            severity="high" if high >= 1 else "low"
         )
     return make_finding(
         name="suspicious_tld",
@@ -144,7 +150,8 @@ def check_suspicious_tld(posting):
         reason="No suspicious TLDs found",
         bad_tld_count=0,
         penalty_sum=0,
-        evidence=[]
+        evidence=[],
+        severity="low"
     )
 
 
@@ -173,11 +180,30 @@ def check_salary(posting):
     analysis = state['salary_analysis']
     final = analysis.penalty
 
+    evidence_list = []
+    if analysis and \
+            hasattr(analysis, 'commission_only') and \
+            analysis.commission_only is not None and \
+            hasattr(analysis.commission_only, 'reason') and \
+            analysis.commission_only.reason:
+        evidence_list.append(f"Commission: {analysis.commission_only.reason}")
+    if analysis and analysis.company is not None and hasattr(analysis, 'company'):
+        evidence_list.append(f"Company: {analysis.company}")
+    if analysis and analysis.title is not None and hasattr(analysis, 'title'):
+        evidence_list.append(f"Title: {analysis.title}")
+    if (analysis and
+            analysis.vague_pay is not None and
+            hasattr(analysis, 'vague_pay') and
+            analysis.vague_pay.reason is not None):
+        evidence_list.append(f"Vague Pay: {analysis.vague_pay.reason}")
+
     return make_finding(
         name="salary",
         penalty=final,
         reason=analysis.reason,
         salary_analysis=analysis.model_dump(),
+        severity="high",
+        evidence=evidence_list,
     )
 
 
