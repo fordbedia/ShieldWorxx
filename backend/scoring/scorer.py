@@ -8,8 +8,20 @@ def score(findings):
     # for f in findings:
     #     total += f["penalty"]
     if total >= 80:
-        return {"label": "Looks legit", "total": total}
+        return {
+            "verdict": "Looks legitimate.",
+            "summary": "No major red flags found. Still confirm the employer on their official website before sharing personal information.",
+            "total": total
+        }
     elif total >= 50:
-        return {"label": "Use caution", "total": total}
+        return {
+            "verdict": "Proceed with caution.",
+            "summary": "This posting shows some warning signs. Review the flagged items below and confirm the employer independently before applying.",
+            "total": total
+        }
     else:
-        return {"label": "High risk", "total": total}
+        return {
+            "verdict": "High risk. Verify the employer before you proceed.",
+            "summary": "This posting shows several signs common in job scams. Don’t share personal information or pay any fees until you’ve confirmed the employer through official channels.",
+            "total": total
+        }
