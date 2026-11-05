@@ -5,7 +5,7 @@ SUSPICIOUS_TLDS = ['.xyz', '.top', '.click', '.icu', '.buzz', '.cfd', '.sbs', '.
 
 PENALTIES = {
     "suspicious_tld": -15,
-    "salary_range_too_wide": -10,
+    "salary_range_too_wide": -15,
     "expired_ssl": -20,
     "hostname_mismatch": -15,
     "self_signed_or_untrusted_ca": -20,

@@ -235,8 +235,13 @@ def check_ssl_validity(posting):
             domains=[],
             risk_domains=[],
             domain_results=[],
-            evidence=[]
+            evidence=[],
+            severity="low"
         )
+    low = len([r['penalty'] for r in final_result['domain_results'] if r['penalty'] == 0])
+    medium = len([r['penalty'] for r in final_result['domain_results'] if r['penalty'] == -15])
+    high = len([r['penalty'] for r in final_result['domain_results'] if r['penalty'] == -20])
+
     return make_finding(
         name="ssl_validity",
         reason=final_result['reason'],
@@ -245,4 +250,5 @@ def check_ssl_validity(posting):
         risk_domains=final_result['risk_domains'],
         domain_results=final_result['domain_results'],
         evidence=final_result['evidence'],
+        severity="high" if high >= 1 else ("medium" if medium >= 1 else "low"),
     )
