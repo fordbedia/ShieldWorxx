@@ -46,4 +46,4 @@ be bound by this website’s Terms of Use and Freedom Forever Website Privacy Po
    Brochure . Legal | Website Privacy Policy | Terms of Use | Licenses 43445 Business Park Drive Suite 104, Temecula 92590 © 2021 Freedom Forever LLC 
    customersupport@freedomforever.com'
 """
-print(run_all_checks(Post(url="https://www.frogtummy.com/intermediate-full-stack-laravel-developer")))
+print(run_all_checks(Post(url="https://int.fordbedia.com/shieldworxx/run/https%3A%2F%2Fwww.indeed.com%2Fviewjob%3Fjk%3Da9782f9b4e3a5abe%26q%3DLaravel%26l%3DRemote%26tk%3D1k6lc2pi3ga5h800%26from%3Dja%26alid%3D62fb99bec2cb5f2d6c1a6ece%26xpse%3DSoDM67I2cWFXp_S4iJ0LbzkdCdPP%26xfps%3D1c8f7836-6c1f-4c64-95c5-b8f88c2661bc%26utm_campaign%3Djob_alerts%26utm_medium%3Demail%26utm_source%3Djobseeker_emails%26rgtk%3D1k6lc2pi3ga5h800%26xkcb%3DSoAu67M2cVQDV6RQgp0KbzkdCdPP")))

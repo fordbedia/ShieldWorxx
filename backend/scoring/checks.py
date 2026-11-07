@@ -32,15 +32,17 @@ def check_domain_age(posting) -> dict:
     # < 180:   {"name": "domain_age", "penalty": -20, "reason": ...}
     # else:    {"name": "domain_age", "penalty": 0,   "reason": f"Domain is {days // 365} years old"}
 
+    domain = get_registered_domain(get_hostname(posting.url))
+    company = None
+
     if posting and \
         hasattr(posting, 'employer_job') and \
         posting.employer_job and \
         (hasattr(posting.employer_job, 'host') or hasattr(posting.employer_job, 'company')):
-        domain = get_registered_domain(posting.employer_job.host)
-        company = posting.employer_job.company
-    else:
-        domain = get_registered_domain(get_hostname(posting.url))
-        company = None
+        if posting.employer_job.host:
+            domain = get_registered_domain(posting.employer_job.host)
+        if posting.employer_job.company:
+            company = posting.employer_job.company
 
     days = get_domain_age_days(domain)
 
