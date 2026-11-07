@@ -6,3 +6,6 @@ tldextract
 beautifulsoup4
 langgraph
 langchain-openai
+python-dotenv
+djangorestframework
+drf-spectacular

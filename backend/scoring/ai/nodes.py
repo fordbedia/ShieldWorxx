@@ -1,13 +1,24 @@
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 from langchain_core.messages import SystemMessage, HumanMessage
-from .prompts import SYSTEM_PROMPT, USER_TEMPLATE, SALARY_SYSTEM_PROMPT
-from .schema import VerdictState, SecurityAgentState, SalaryAgentState, SalaryAnalysis
+from .prompts import SYSTEM_PROMPT, USER_TEMPLATE, SALARY_SYSTEM_PROMPT, EMPLOYER_DOMAIN_SYSTEM_PROMPT
+from .schema import VerdictState, SecurityAgentState, SalaryAgentState, SalaryAnalysis, EmployerDomainExtractionState, \
+    EmployerDomainExtraction
 
 def get_llm():
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
     # later: return ChatAnthropic(model="...", temperature=0)
     return llm
+
+def employer_host_extraction_nodes(state: EmployerDomainExtractionState):
+    employer_host_extraction_llm = get_llm().with_structured_output(EmployerDomainExtraction)
+    question = state['text']
+    result: EmployerDomainExtraction = employer_host_extraction_llm.invoke([
+        SystemMessage(content=EMPLOYER_DOMAIN_SYSTEM_PROMPT),
+        HumanMessage(content=question),
+    ])
+
+    return {"employer_host": result}
 
 def suspicious_nodes(state: SecurityAgentState):
     """

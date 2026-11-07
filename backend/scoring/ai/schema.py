@@ -4,11 +4,13 @@ from typing import TypedDict, Optional, Literal,TypedDict
 class VerdictState(BaseModel):        # what the AI must return
     verdict: Literal["safe", "suspicious"]
     penalty: Literal[0, -10, -20, -30, -40]
+    evidence: list[str]
     reason: str
 
 class SecurityAgentState(TypedDict):
     verdict: Literal["safe", "suspicious"]
     penalty: Literal[0, -10, -20, -30, -40]
+    evidence: list[str]
     reason: str
     text: str
 
@@ -26,6 +28,9 @@ class PaySignal(BaseModel):
     penalty: Literal[0, -5, -15]
 
 class SalaryAnalysis(BaseModel):
+    # Declared first so the model identifies the role before judging pay.
+    title: str | None = Field(description="Job title of the advertised position, or null if not stated")
+    company: str | None = Field(description="Hiring company name (not the job board), or null if not named")
     extraction: SalaryExtraction
     vague_pay: PaySignal
     commission_only: PaySignal
@@ -36,3 +41,18 @@ class SalaryAnalysis(BaseModel):
 class SalaryAgentState(TypedDict):
     text: str
     salary_analysis: SalaryAnalysis | None
+
+"""Employer Domain Extraction"""
+class EmployerHost(BaseModel):
+    host: str
+    uri: str
+    source: Literal["link", "email", "text"]
+
+class EmployerDomainExtraction(BaseModel):
+    company_name: str | None
+    employer_host: EmployerHost | None
+    reason: str
+
+class EmployerDomainExtractionState(TypedDict):
+    text: str
+    employer_host: EmployerDomainExtraction | None

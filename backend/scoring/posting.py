@@ -11,14 +11,19 @@ class PostJob:
     job_title: str = ""
     location: str = ""
 
+@dataclass()
+class EmployerJobPost:
+    company: str | None
+    host: str | None
+
 @dataclass
 class Post:
     url: str
     post_details: PostDetails | None = None
     post_job: PostJob | None = None
+    employer_job: EmployerJobPost | None = None
     text: str = ""
     company_name: str = ""
-
 
 @dataclass
 class SalaryMention:

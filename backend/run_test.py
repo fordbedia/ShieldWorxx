@@ -19,7 +19,7 @@ Facebook Instagram Linkedin YouTube Spotify Get in touch Want to get in touch? W
 Customer Support Existing Freedom Forever customer? Find quick answers and get in touch with our Customer Support team via chat or by emailing 
 us at customersupport@freedomforever.com Or, you can call us at 800-685-1850 Monday – Friday, 5am – 5pm PT Closed Saturday & Sunday Email Customer Support 
 Get a Quote to Go Solar Thinking about going solar? Submit your info via the link below to get started with a free personalized quote based 
-on your energy use. Get a Quote Media Outreach Reaching out about press coverage or a media opportunity? Email us at 
+on your energy use. Our company is https://zenvoy.com, you can check our careers page at: https://zenvoy.com/careers Get a Quote Media Outreach Reaching out about press coverage or a media opportunity? Email us at 
 freedomforever@interdependence.com Get a Quote Get 25 years of clean, reliable solar power with Freedom Forever’s Production Guarantee! 
 Your energy freedom starts here. Terms and conditions apply* " * " indicates required fields Instagram This field is for validation purposes 
 and should be left unchanged. Name * First Last Email * Phone Number * Address * Street Address Address Line 2 City ZIP / Postal Code State 
@@ -31,7 +31,7 @@ By checking the box and clicking submit, I authorize Freedom Forever LLC, it’s
 and/or text messages (SMS), using auto dialing technology or otherwise, for advertising/marketing purposes, whether or not my phone 
 number is on a national and/or state “Do Not Call” list. By using and interacting with this website, I agree to electronically contract and 
 be bound by this website’s Terms of Use and Freedom Forever Website Privacy Policy. No purchase is required. Message and data rates may apply.
- Text STOP to opt-out. Facebook Instagram Linkedin YouTube Spotify Helpful Links Why go solar About Us Services Volt Mobile 
+ Text STOP to opt-out. contact these persons: john@expired.badssl.com, tina@self-signed.badssl.com, manuel@untrusted-root.badssl.com and fermin@wrong.host.badssl.com Facebook Instagram Linkedin YouTube Spotify Helpful Links Why go solar About Us Services Volt Mobile 
  App Learning center Verification of Employment Podcast Dealer program Careers States we service Customer portal Contact us 
  Why go solar About Us Services Volt Mobile App Learning center Verification of Employment Podcast Dealer program Careers States we service 
  Customer portal Contact us Why go solar About Us Services Volt Mobile App Learning center Verification of Employment Podcast Dealer program 
@@ -46,4 +46,4 @@ be bound by this website’s Terms of Use and Freedom Forever Website Privacy Po
    Brochure . Legal | Website Privacy Policy | Terms of Use | Licenses 43445 Business Park Drive Suite 104, Temecula 92590 © 2021 Freedom Forever LLC 
    customersupport@freedomforever.com'
 """
-print(run_all_checks(Post(url="https://ford.com", text=text)))
+print(run_all_checks(Post(url="https://int.fordbedia.com/shieldworxx/run/https%3A%2F%2Fwww.indeed.com%2Fviewjob%3Fjk%3Da9782f9b4e3a5abe%26q%3DLaravel%26l%3DRemote%26tk%3D1k6lc2pi3ga5h800%26from%3Dja%26alid%3D62fb99bec2cb5f2d6c1a6ece%26xpse%3DSoDM67I2cWFXp_S4iJ0LbzkdCdPP%26xfps%3D1c8f7836-6c1f-4c64-95c5-b8f88c2661bc%26utm_campaign%3Djob_alerts%26utm_medium%3Demail%26utm_source%3Djobseeker_emails%26rgtk%3D1k6lc2pi3ga5h800%26xkcb%3DSoAu67M2cVQDV6RQgp0KbzkdCdPP")))
