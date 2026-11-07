@@ -1,7 +1,15 @@
 from langgraph.graph import StateGraph, START, END
-from .schema import SecurityAgentState, SalaryAgentState
-from .nodes import suspicious_nodes, suspicious_salary_nodes
+from .schema import SecurityAgentState, SalaryAgentState, EmployerDomainExtractionState
+from .nodes import suspicious_nodes, suspicious_salary_nodes, employer_host_extraction_nodes
 
+"""Employer Host Extraction Nodes"""
+employer_host_extraction_requests = StateGraph(EmployerDomainExtractionState)
+employer_host_extraction_requests.add_node("employer_host_extraction_requests", employer_host_extraction_nodes)
+
+employer_host_extraction_requests.add_edge(START, "employer_host_extraction_requests")
+employer_host_extraction_requests.add_edge("employer_host_extraction_requests", END)
+
+employer_host_extraction_graph = employer_host_extraction_requests.compile()
 """Check Suspicious Nodes"""
 check_suspicious_requests = StateGraph(SecurityAgentState)
 

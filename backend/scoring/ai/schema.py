@@ -41,3 +41,18 @@ class SalaryAnalysis(BaseModel):
 class SalaryAgentState(TypedDict):
     text: str
     salary_analysis: SalaryAnalysis | None
+
+"""Employer Domain Extraction"""
+class EmployerHost(BaseModel):
+    host: str
+    uri: str
+    source: Literal["link", "email", "text"]
+
+class EmployerDomainExtraction(BaseModel):
+    company_name: str | None
+    employer_host: EmployerHost | None
+    reason: str
+
+class EmployerDomainExtractionState(TypedDict):
+    text: str
+    employer_host: EmployerDomainExtraction | None

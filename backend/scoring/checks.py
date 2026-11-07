@@ -1,7 +1,7 @@
 from .domains import get_registered_domain, get_hostname, get_domain_tld, get_domain_or_subdomain
 from .rdap import get_domain_age_days
 import re
-from .ai.graph import fraud_graph, salary_graph
+from .ai.graph import fraud_graph, salary_graph, employer_host_extraction_graph
 import tldextract
 from .rules import FREE_EMAIL_PROVIDERS, SUSPICIOUS_TLDS, PENALTIES
 from .findings import make_finding
@@ -9,25 +9,49 @@ import ssl, socket
 from datetime import datetime, timezone
 from .helpers import check_ssl_status
 
+def check_employer_host(posting):
+    state = employer_host_extraction_graph.invoke({
+        "text": posting.text
+    })
+
+    result = state["employer_host"]
+
+    return make_finding(
+        name="employer_host",
+        severity="low",
+        evidence="",
+        reason=result.reason,
+        company_name=result.company_name,
+        employer_host=result.employer_host.model_dump() if result.employer_host else None,
+    )
 
 def check_domain_age(posting) -> dict:
     """Turns the age into a FINDING the user can read."""
-    # TODO: return one of these shapes:
     # unknown: {"name": "domain_age", "penalty": 0,   "reason": "Couldn't check domain age"}
     # < 30:    {"name": "domain_age", "penalty": -35, "reason": f"Domain registered {days} days ago"}
     # < 180:   {"name": "domain_age", "penalty": -20, "reason": ...}
     # else:    {"name": "domain_age", "penalty": 0,   "reason": f"Domain is {days // 365} years old"}
-    domain = get_registered_domain(get_hostname(posting.url))
+
+    if posting and \
+        hasattr(posting, 'employer_job') and \
+        posting.employer_job and \
+        (hasattr(posting.employer_job, 'host') or hasattr(posting.employer_job, 'company')):
+        domain = get_registered_domain(posting.employer_job.host)
+        company = posting.employer_job.company
+    else:
+        domain = get_registered_domain(get_hostname(posting.url))
+        company = None
+
     days = get_domain_age_days(domain)
 
     if days is None:
-        return {"name": "domain_age", "domain": domain, "penalty": 0, "severity": "low", "reason": "Couldn't check domain age"}
+        return {"name": "domain_age", "domain": domain, "company": company, "penalty": 0, "severity": "low", "reason": "Couldn't check domain age"}
     elif days < 30:
-        return {"name": "domain_age", "domain": domain, "penalty": -35, "severity": "high", "reason": f"Domain registered {days} days ago"}
+        return {"name": "domain_age", "domain": domain, "company": company, "penalty": -35, "severity": "high", "reason": f"Domain registered {days} days ago"}
     elif days < 180:
-        return {"name": "domain_age", "domain": domain, "penalty": -20, "severity": "medium", "reason": f"Domain registered {days} days ago"}
+        return {"name": "domain_age", "domain": domain, "company": company, "penalty": -20, "severity": "medium", "reason": f"Domain registered {days} days ago"}
     else:
-        return {"name": "domain_age", "domain": domain, "penalty": 0, "severity": "low", "reason": f"Domain is {days // 365} years old"}
+        return {"name": "domain_age", "domain": domain, "company": company, "penalty": 0, "severity": "low", "reason": f"Domain is {days // 365} years old"}
 
 
 def check_recruiter_email(posting):
@@ -202,7 +226,7 @@ def check_salary(posting):
         penalty=final,
         reason=analysis.reason,
         salary_analysis=analysis.model_dump(),
-        severity="high",
+        severity="high" if analysis.penalty <= -15 else "medium" if analysis.penalty <= -5 else "low",
         evidence=evidence_list,
     )
 

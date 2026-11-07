@@ -19,7 +19,7 @@ Facebook Instagram Linkedin YouTube Spotify Get in touch Want to get in touch? W
 Customer Support Existing Freedom Forever customer? Find quick answers and get in touch with our Customer Support team via chat or by emailing 
 us at customersupport@freedomforever.com Or, you can call us at 800-685-1850 Monday – Friday, 5am – 5pm PT Closed Saturday & Sunday Email Customer Support 
 Get a Quote to Go Solar Thinking about going solar? Submit your info via the link below to get started with a free personalized quote based 
-on your energy use. Get a Quote Media Outreach Reaching out about press coverage or a media opportunity? Email us at 
+on your energy use. Our company is https://zenvoy.com, you can check our careers page at: https://zenvoy.com/careers Get a Quote Media Outreach Reaching out about press coverage or a media opportunity? Email us at 
 freedomforever@interdependence.com Get a Quote Get 25 years of clean, reliable solar power with Freedom Forever’s Production Guarantee! 
 Your energy freedom starts here. Terms and conditions apply* " * " indicates required fields Instagram This field is for validation purposes 
 and should be left unchanged. Name * First Last Email * Phone Number * Address * Street Address Address Line 2 City ZIP / Postal Code State 
@@ -46,4 +46,4 @@ be bound by this website’s Terms of Use and Freedom Forever Website Privacy Po
    Brochure . Legal | Website Privacy Policy | Terms of Use | Licenses 43445 Business Park Drive Suite 104, Temecula 92590 © 2021 Freedom Forever LLC 
    customersupport@freedomforever.com'
 """
-print(run_all_checks(Post(url="https://careers.aristocrat.com/en/jobs/r0022176/full-stack-developer", text=text)))
+print(run_all_checks(Post(url="https://www.frogtummy.com/intermediate-full-stack-laravel-developer")))
