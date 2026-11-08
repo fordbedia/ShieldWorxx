@@ -6,12 +6,16 @@ class VerdictState(BaseModel):        # what the AI must return
     penalty: Literal[0, -10, -20, -30, -40]
     evidence: list[str]
     reason: str
+    contact_methods: list[str]
+    contact_summary: str
 
 class SecurityAgentState(TypedDict):
     verdict: Literal["safe", "suspicious"]
     penalty: Literal[0, -10, -20, -30, -40]
     evidence: list[str]
     reason: str
+    contact_methods: list[str]
+    contact_summary: str
     text: str
 
 class SalaryExtraction(BaseModel):

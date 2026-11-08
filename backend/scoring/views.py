@@ -3,19 +3,26 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
-from django.core.validators import URLValidator
+from .services import scan_job
+from .models import Job
 
-from scoring.posting import Post
-from scoring.engine import run_all_checks
 
-validate_url = URLValidator(schemes=["http", "https"])
 
 # Create your views here.
 class ValidateAll(APIView):
     def get(self, request, job_url):
-        try:
-            validate_url(job_url)
-        except ValidationError:
-            return Response({"error": "Invalid URL"}, status=400)
-        basic, advanced, score  = run_all_checks(Post(url=job_url))
-        return Response({"score": score, "findings": basic + advanced})
+        job = Job.objects
+        has_job =job.active().for_job(url=job_url).exists()
+        if not has_job:
+            basic, advanced, score  = scan_job(job_url)
+            job.create_or_new_from_url(
+                url=job_url,
+                basic=basic,
+                advanced=advanced,
+                score=score
+            )
+            return Response({"score": score, "findings": basic + advanced})
+        # Show and return the model
+        job, scanned = Job.objects.get_or_scan(job_url, scanner=scan_job)
+        return Response({"score": job.score, "findings":job.findings, "cached": not scanned})
+
