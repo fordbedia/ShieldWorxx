@@ -43,6 +43,8 @@ def check_domain_age(posting) -> dict:
             domain = get_registered_domain(posting.employer_job.host)
         if posting.employer_job.company:
             company = posting.employer_job.company
+    else:
+        return {"name": "domain_age", "domain": domain, "company": company, "penalty": 0, "severity": "low", "reason": "Couldn't check domain age. Hostname was not mention."}
 
     days = get_domain_age_days(domain)
 
@@ -238,6 +240,14 @@ def check_ssl_validity(posting):
     domains = []
     if posting and posting.post_details and hasattr(posting.post_details, 'emails'):
         domains = [get_domain_or_subdomain(d.split('@')[1]) for d in posting.post_details.emails]
+
+    # Incorporate the employer's hostname
+    if posting and \
+        hasattr(posting, 'employer_job') and \
+        posting.employer_job and \
+        hasattr(posting.employer_job, 'host') and \
+        posting.employer_job.host:
+        domains.append(posting.employer_job.host)
 
     port: int = 443
     unique_domains = list(dict.fromkeys(domains))

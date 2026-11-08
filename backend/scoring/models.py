@@ -15,7 +15,7 @@ def normalize_url(url: str) -> str:
 def hash_url(url: str) -> str:
     return hashlib.sha256(normalize_url(url).encode()).hexdigest()
 
-CACHE_TTL = timedelta(days=7)  # how long a scan stays reusable
+CACHE_TTL = timedelta(days=30)  # how long a scan stays reusable
 
 class JobManager(models.Manager):
     def create_or_new_from_url(
@@ -25,7 +25,7 @@ class JobManager(models.Manager):
             advanced: list,
             score: dict
     ) -> models.Model:
-        if not self.active().exists():
+        if not self.active().for_url(url).exists():
             return self.create(
                 url=normalize_url(url),
                 findings=basic+advanced,
