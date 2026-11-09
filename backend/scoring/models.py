@@ -25,7 +25,8 @@ class JobManager(models.Manager):
             advanced: list,
             score: dict
     ) -> models.Model:
-        if not self.active().for_url(url).exists():
+        job_manager = self.for_url(url)
+        if not job_manager.exists():
             return self.create(
                 url=normalize_url(url),
                 findings=basic+advanced,
@@ -35,7 +36,11 @@ class JobManager(models.Manager):
                 expires_at=timezone.now() + CACHE_TTL
             )
         else:
-            return self.active().first()
+            model = job_manager.first()
+            print('job_manager.is_expired()', job_manager.is_expired())
+            if job_manager.is_expired():
+                model.expired = True
+            return model
 
     def get_or_scan(self, url: str, scanner) ->tuple["Job", bool]:
           job = self.latest_for_url(url)
@@ -51,12 +56,13 @@ class JobQuerySet(models.QuerySet):
             models.Q(expires_at__isnull=True) | models.Q(expires_at__gte=now))
 
      def for_job(self, url: str):
-        today_utc = timezone.now()
-        return self.filter(url=normalize_url(url), expires_at__gte=today_utc)
+        return self.filter(url=normalize_url(url))
 
      def has_job(self, url: str):
-        today_utc = timezone.now()
-        return self.active().filter(url=normalize_url(url), expires_at__gte=today_utc).exists()
+        return self.active().filter(url=normalize_url(url))
+
+     def is_expired(self):
+         return self.filter(expires_at__lte=timezone.now()).exists()
 
      # def for_url(self, url: str) -> str:
      #     return self.filter(url=normalize_url(url))
@@ -72,8 +78,10 @@ class JobQuerySet(models.QuerySet):
 class Job(models.Model):
     objects = JobManager.from_queryset(JobQuerySet)()
 
+    expired: bool = False
+
     url = models.URLField(max_length=2048)
-    url_hash = models.CharField(max_length=64, editable=False)
+    url_hash = models.CharField(max_length=64, unique=True, editable=False)
     findings = models.JSONField(default=list)
     score = models.JSONField(default=dict)
     total = models.PositiveSmallIntegerField(null=True,

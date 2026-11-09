@@ -55,7 +55,7 @@ def check_domain_age(posting) -> dict:
     elif days < 180:
         return {"name": "domain_age", "domain": domain, "company": company, "penalty": -20, "severity": "medium", "reason": f"Domain registered {days} days ago"}
     else:
-        return {"name": "domain_age", "domain": domain, "company": company, "penalty": 0, "severity": "low", "reason": f"Domain is {days // 365} years old"}
+        return {"name": "domain_age", "domain": domain, "company": company, "penalty": 0, "severity": "low", "reason": f"Domain ({domain}) is {days // 365} years old"}
 
 
 def check_recruiter_email(posting):
