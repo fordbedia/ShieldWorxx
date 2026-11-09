@@ -20,7 +20,6 @@ class ValidateAll(APIView):
                 advanced=advanced,
                 score=score
             )
-            print('model.expired', model.expired)
             if model.expired:
                 model.findings = basic + advanced
                 model.score = score

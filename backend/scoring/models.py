@@ -37,7 +37,6 @@ class JobManager(models.Manager):
             )
         else:
             model = job_manager.first()
-            print('job_manager.is_expired()', job_manager.is_expired())
             if job_manager.is_expired():
                 model.expired = True
             return model
